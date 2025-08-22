@@ -7,19 +7,32 @@
     },
     "configurePresets": [
         {
-            "name": "debug",
-            "displayName": "Debug Configuration",
-            "binaryDir": "${sourceDir}/build/debug",
+            "name": "default",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_STANDARD": "23",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "OFF"
+            }
+        },
+        {
+            "name": "debug",
+            "inherits": "default",
+            "description": "Debug Configuration",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS_DEBUG": "-g -O0 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -DDEBUG"
             }
         },
         {
             "name": "release",
-            "displayName": "Release Configuration",
-            "binaryDir": "${sourceDir}/build/release",
+            "inherits": "default",
+            "description": "Release Configuration",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O3"
             }
         }
     ],
@@ -31,6 +44,22 @@
         {
             "name": "release",
             "configurePreset": "release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "release",
+            "configurePreset": "release",
+            "output": {
+                "outputOnFailure": true
+            }
         }
     ]
 }
