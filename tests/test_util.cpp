@@ -153,3 +153,64 @@ TEST(TokenizeTest, EscapedSpaces)
     EXPECT_EQ((*result)[0], "echo");
     EXPECT_EQ((*result)[1], "hello world");
 }
+
+TEST(CommandExistsTest, ExistingCommand)
+{
+    EXPECT_TRUE(nullsh::util::command_exists("ls")); // Assuming 'ls' exists on the system
+}
+
+TEST(CommandExistsTest, NonExistingCommand)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("some_nonexistent_command_12345"));
+}
+
+TEST(CommandExistsTest, EmptyCommand)
+{
+    EXPECT_FALSE(nullsh::util::command_exists(""));
+}
+
+TEST(CommandExistsTest, NullCommand)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("   "));
+}
+
+TEST(CommandExistsTest, CommandWithPath)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("/bin/ls")); // Should return false as we check only command names
+}
+
+TEST(CommandExistsTest, CommandWithArguments)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("ls -l")); // Should return false as we check only command names
+}
+
+TEST(CommandExistsTest, CommandWithSpecialChars)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("ls; echo void")); // Should return false as we check only command names
+}
+
+TEST(CommandExistsTest, CommandWithSpaces)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("ls ")); // Should return false as we check only command names
+}
+
+TEST(CommandExistsTest, CommandWithTabs)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("ls\t")); // Should return false as we check only command names
+}
+
+TEST(CommandExistsTest, CommandWithNewline)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("ls\n")); // Should return false as we check only command names
+}
+
+TEST(CommandExistsTest, CommandWithMixedWhitespace)
+{
+    EXPECT_FALSE(nullsh::util::command_exists("  ls  ")); // Should return false as we check only command names
+}
+
+TEST(CommandExistsTest, VeryLongCommand)
+{
+    std::string long_cmd(1000, 'a'); // Command name with 1000 'a' characters
+    EXPECT_FALSE(nullsh::util::command_exists(long_cmd));
+}

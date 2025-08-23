@@ -7,6 +7,8 @@
 
 #include "nullsh/util.h"
 #include <cctype>
+#include <sstream>
+#include <unistd.h>
 
 namespace nullsh::util
 {
@@ -114,4 +116,36 @@ namespace nullsh::util
         push_token();
         return tokens;
     }
+
+    /**
+     * @brief Checks if a command exists in the system PATH
+     *
+     * @param cmd Command to check
+     * @return true if command exists, false otherwise
+     */
+    bool command_exists(const std::string &cmd)
+    {
+        if (cmd.empty())
+            return false;
+
+        const char *path_env = std::getenv("PATH");
+        if (!path_env)
+            return false;
+
+        std::string path(path_env);
+        std::stringstream ss(path);
+        std::string dir;
+
+        while (std::getline(ss, dir, ':'))
+        {
+            std::string full_path = dir + "/" + cmd;
+            if (access(full_path.c_str(), X_OK) == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 } // namespace nullsh::util

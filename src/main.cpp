@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <format>
+#include <string>
 
 #include "nullsh/cli.h"
 #include "nullsh/shell.h"
@@ -34,6 +35,24 @@ int main(int argc, char **argv)
         }
 
         return sh.dispatch(tokens.value());
+    }
+
+    if (!getenv("NULLSH_IN_TERMINAL") && cli->spawn_term)
+    {
+        // set to avoid infinite recursion
+        setenv("NULLSH_IN_TERMINAL", "1", 1);
+
+        std::string cmd = *cli->spawn_term;
+        cmd += argv[0]; // path to nullsh
+
+        for (int i = 1; i < argc; i++)
+        {
+            cmd += " ";
+            cmd += argv[i];
+        }
+
+        system(cmd.c_str());
+        return 0; // exit parent process
     }
 
     sh.run();

@@ -17,6 +17,6 @@ namespace nullsh::util
     void ltrim(std::string &s);
     void rtrim(std::string &s);
     void trim(std::string &s);
-
     std::expected<std::vector<std::string>, std::string> tokenize(std::string_view line);
+    bool command_exists(const std::string &cmd);
 }
