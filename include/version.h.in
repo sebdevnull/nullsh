@@ -1,3 +1,10 @@
+/**
+ * @file version.h
+ * @brief 
+ * 
+ * @license GPLv3 (see LICENSE file)
+ */
+
 #pragma once
 
 #define NULLSH_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
