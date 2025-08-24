@@ -14,7 +14,9 @@ FetchContent_MakeAvailable(googletest)
 add_executable(${NULLSH_TESTS}
     test_util.cpp
     test_cli.cpp
-    test_shell.cpp)
+    test_shell.cpp
+    test_parser.cpp
+    test_command.cpp)
 
 set_target_properties(${NULLSH_TESTS} PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}-tests

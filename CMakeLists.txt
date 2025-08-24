@@ -20,6 +20,8 @@ target_sources(${NULLSH_LIB} PRIVATE
     src/shell.cpp
     src/util.cpp
     src/cli.cpp
+    src/parser.cpp
+    src/command.cpp
 )
 
 # Expose headers and generated files

@@ -5,10 +5,14 @@
  * @license GPLv3 (see LICENSE file)
  */
 
-#include <iostream>
-#include <unistd.h>
-#include <sys/wait.h>
 #include "nullsh/shell.h"
+
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include <iostream>
+
+#include "nullsh/parser.h"
 #include "nullsh/util.h"
 
 // Conventional POSIX exit codes for shells
@@ -25,7 +29,8 @@ namespace nullsh
      */
     int NullShell::run()
     {
-        while (1)
+        running = true;
+        while (running)
         {
             std::cout << prompt << std::flush;
 
@@ -43,7 +48,7 @@ namespace nullsh
             }
 
             int rc = dispatch(*tokens);
-            (void)rc; // reserved for later
+            (void) rc; // reserved for later
         }
 
         return -1;
@@ -55,42 +60,78 @@ namespace nullsh
      * @param args Tokenized command line
      * @return int Exit code
      */
-    int NullShell::dispatch(const std::vector<std::string> &args)
+    int NullShell::dispatch(const std::vector<std::string>& args)
     {
         if (args.empty())
+        {
             return 0;
+        }
 
-        return execute(args);
+        auto cmd = parser::parse_command(args);
+        auto res = execute(cmd);
+
+        if (cmd.ops.empty())
+        {
+            // push default operator if none specified
+            cmd.ops.push_back(command::Op::None);
+        }
+
+        for (const auto& op : cmd.ops)
+        {
+            command::apply_operator(op, res);
+        }
+
+        return res.return_code;
     }
 
     /**
      * @brief Executes a command
      *
-     * @param args Tokenized command line
-     * @return int Exit code
+     * @param cmd Command to execute
+     * @return command::CommandResult Result of command execution
      */
-    int NullShell::execute(const std::vector<std::string> &args)
+    command::CommandResult NullShell::execute(command::Command& cmd)
     {
-        if (args.empty())
-            return 0;
+        command::CommandResult res {};
 
-        std::vector<char *> cstr_args;
-        cstr_args.reserve(args.size() + 1);
-        for (const auto &arg : args)
+        if (cmd.args.empty())
         {
-            cstr_args.push_back(const_cast<char *>(arg.c_str()));
+            return res;
+        }
+
+        std::vector<char*> cstr_args;
+        cstr_args.reserve(cmd.args.size() + 1);
+        for (const auto& arg : cmd.args)
+        {
+            cstr_args.push_back(const_cast<char*>(arg.c_str()));
         }
         cstr_args.push_back(nullptr);
+
+        int stdout_pipe[2], stderr_pipe[2];
+        if (pipe(stdout_pipe) < 0 || pipe(stderr_pipe) < 0)
+        {
+            std::perror("pipe");
+            res.return_code = EXIT_CMD_NOT_FOUND;
+            return res;
+        }
 
         pid_t pid = fork();
         if (pid < 0)
         {
             std::perror("fork");
-            return EXIT_CMD_NOT_FOUND;
+            res.return_code = EXIT_CMD_NOT_FOUND;
+            return res;
         }
-        else if (pid == 0)
+        if (pid == 0)
         {
             // Child process
+            close(stdout_pipe[0]);
+            close(stderr_pipe[0]);
+            dup2(stdout_pipe[1], STDOUT_FILENO);
+            dup2(stderr_pipe[1], STDERR_FILENO);
+            close(stdout_pipe[1]);
+            close(stderr_pipe[1]);
+
             execvp(cstr_args[0], cstr_args.data());
             if (errno == ENOENT)
             {
@@ -103,24 +144,49 @@ namespace nullsh
         }
 
         // Parent process
-        int status;
+        close(stdout_pipe[1]);
+        close(stderr_pipe[1]);
+
+        // capture child output into command result
+        res.return_code = 0;
+        {
+            char buffer[4096];
+            ssize_t count;
+            while ((count = read(stdout_pipe[0], buffer, sizeof(buffer))) > 0)
+            {
+                res.stdout_data.append(buffer, count);
+            }
+        }
+        {
+            char buffer[4096];
+            ssize_t count;
+            while ((count = read(stderr_pipe[0], buffer, sizeof(buffer))) > 0)
+            {
+                res.stderr_data.append(buffer, count);
+            }
+        }
+        close(stdout_pipe[0]);
+        close(stderr_pipe[0]);
+
+        int status = 0;
         if (waitpid(pid, &status, 0) < 0)
         {
             std::perror("waitpid");
-            return EXIT_CMD_NOT_FOUND;
+            res.return_code = EXIT_CMD_NOT_FOUND;
+            return res;
         }
 
         if (WIFEXITED(status))
         {
-            return WEXITSTATUS(status);
+            res.return_code = WEXITSTATUS(status);
         }
         else if (WIFSIGNALED(status))
         {
             std::cerr << "Process terminated by signal " << WTERMSIG(status) << "\n";
-            return EXIT_SIGNAL_BASE + WTERMSIG(status);
+            res.return_code = EXIT_SIGNAL_BASE + WTERMSIG(status);
         }
 
-        return 0;
+        return res;
     }
 
-}
+} // namespace nullsh
