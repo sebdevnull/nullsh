@@ -1,6 +1,6 @@
 /**
  * @file shell.h
- * @brief 
+ * @brief NullShell class definition
  * 
  * @license GPLv3 (see LICENSE file)
  */

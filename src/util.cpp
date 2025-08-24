@@ -1,6 +1,6 @@
 /**
  * @file utils.cpp
- * @brief Implementation of util.h
+ * @brief Common utility components
  *
  * @license GPLv3 (see LICENSE file)
  */

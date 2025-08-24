@@ -1,6 +1,6 @@
 /**
  * @file test_shell.cpp
- * @brief
+ * @brief Tests for nullsh::NullShell
  *
  * @license GPLv3 (see LICENSE file)
  */

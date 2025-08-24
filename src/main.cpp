@@ -1,6 +1,6 @@
 /**
  * @file main.cpp
- * @brief
+ * @brief Entry point for nullsh
  *
  * @license GPLv3 (see LICENSE file)
  */

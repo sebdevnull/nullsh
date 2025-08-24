@@ -1,6 +1,6 @@
 /**
  * @file cli.cpp
- * @brief
+ * @brief CLI for NullShell
  *
  * @license GPLv3 (see LICENSE file)
  */

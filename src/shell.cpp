@@ -1,6 +1,6 @@
 /**
  * @file shell.cpp
- * @brief
+ * @brief NullShell class implementation
  *
  * @license GPLv3 (see LICENSE file)
  */
