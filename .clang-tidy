@@ -1,0 +1,18 @@
+Checks: >
+  modernize-use-trailing-return-type,
+  modernize-deprecated-headers,
+  readability-identifier-naming,
+  readability-identifier-length,
+  bugprone-*,
+  performance-*,
+  portability-*,
+  cppcoreguidelines-*,
+  misc-*
+
+CheckOptions:
+  - key:             readability-identifier-length.MinimumVariableNameLength
+    value:           '3'
+  - key:             readability-identifier-length.MinimumParameterNameLength
+    value:           '3'
+  - key:             readability-identifier-naming.FunctionCase
+    value:           lower_case

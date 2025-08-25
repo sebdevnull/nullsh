@@ -1,0 +1,22 @@
+CompileFlags:
+  CompilationDatabase: build
+  Add: [-Wall, -Wextra, -Wpedantic]
+
+Diagnostics:
+  UnusedIncludes: Strict
+  ClangTidy:
+      Add: 
+      - bugprone-*          # common mistakes that can lead to bugs
+      - modernize-*         # C++11–23 modernization
+      - readability-*       # readability & consistency
+      - performance-*       # perf pitfalls (copying, move, etc.)
+      - cppcoreguidelines-* # some of the safer guideline checks
+      Remove: 
+      - readability-identifier-length
+      - modernize-use-trailing-return-type
+      # - cppcoreguidelines-avoid-magic-numbers
+      # - cppcoreguidelines-owning-memory
+      # - cppcoreguidelines-pro-type-union-access
+      # - cppcoreguidelines-pro-bounds-array-to-pointer-decay
+      # - cppcoreguidelines-pro-bounds-pointer-arithmetic
+      # - readability-magic-numbers            # too verbose

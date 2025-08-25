@@ -1,0 +1,44 @@
+BasedOnStyle: LLVM
+
+# --- Layout & Indentation ---
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+IndentCaseLabels: true
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: Empty  # one-liners okay if trivial
+# AllowShortFunctionsOnASingleLine: None
+# AllowShortIfStatementsOnASingleLine: Never
+# AllowShortBlocksOnASingleLine: Never
+
+# --- Includes ---
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<.*\.h>'
+    Priority: 1
+  - Regex: '^<.*>'
+    Priority: 2
+  - Regex: '^".*'
+    Priority: 3
+
+# --- Pointers & References ---
+PointerAlignment: Left       # int* ptr
+ReferenceAlignment: Left     # int& ref
+
+# --- Spacing ---
+SpaceAfterCStyleCast: true
+SpaceBeforeCpp11BracedList: true
+SpacesInAngles: false
+SpacesInParentheses: false
+
+# --- Lambdas & Functions ---
+LambdaBodyIndentation: Signature
+BinPackArguments: false
+BinPackParameters: false
+AlignAfterOpenBracket: Align
+
+# --- Namespaces ---
+NamespaceIndentation: All
+FixNamespaceComments: true
