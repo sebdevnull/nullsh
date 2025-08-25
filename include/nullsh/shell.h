@@ -12,8 +12,13 @@
 
 #include "nullsh/command.h"
 
-namespace nullsh
+namespace nullsh::shell
 {
+    // Conventional POSIX exit codes for shells
+    constexpr int EXIT_CMD_NOT_EXECUTABLE = 126; // found but not executable
+    constexpr int EXIT_CMD_NOT_FOUND = 127;      // command not found
+    constexpr int EXIT_SIGNAL_BASE = 128;        // 128 + signal number
+
     class NullShell
     {
         bool running {false};
@@ -29,4 +34,4 @@ namespace nullsh
 
         command::CommandResult execute(command::Command& cmd);
     };
-} // namespace nullsh
+} // namespace nullsh::shell

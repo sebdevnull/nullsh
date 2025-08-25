@@ -13,14 +13,10 @@
 #include <iostream>
 
 #include "nullsh/parser.h"
+#include "nullsh/result_capturer.h"
 #include "nullsh/util.h"
 
-// Conventional POSIX exit codes for shells
-constexpr int EXIT_CMD_NOT_EXECUTABLE = 126; // found but not executable
-constexpr int EXIT_CMD_NOT_FOUND = 127;      // command not found
-constexpr int EXIT_SIGNAL_BASE = 128;        // 128 + signal number
-
-namespace nullsh
+namespace nullsh::shell
 {
     /**
      * @brief Runs the interactive shell
@@ -93,6 +89,7 @@ namespace nullsh
     command::CommandResult NullShell::execute(command::Command& cmd)
     {
         command::CommandResult res {};
+        io::CommandResultCapturer cmd_capturer {res};
 
         if (cmd.args.empty())
         {
@@ -101,19 +98,13 @@ namespace nullsh
 
         std::vector<char*> cstr_args;
         cstr_args.reserve(cmd.args.size() + 1);
-        for (const auto& arg : cmd.args)
+        for (auto& arg : cmd.args)
         {
-            cstr_args.push_back(const_cast<char*>(arg.c_str()));
+            cstr_args.push_back(arg.data());
         }
         cstr_args.push_back(nullptr);
 
-        int stdout_pipe[2], stderr_pipe[2];
-        if (pipe(stdout_pipe) < 0 || pipe(stderr_pipe) < 0)
-        {
-            std::perror("pipe");
-            res.return_code = EXIT_CMD_NOT_FOUND;
-            return res;
-        }
+        cmd_capturer.init_pipes();
 
         pid_t pid = fork();
         if (pid < 0)
@@ -124,13 +115,7 @@ namespace nullsh
         }
         if (pid == 0)
         {
-            // Child process
-            close(stdout_pipe[0]);
-            close(stderr_pipe[0]);
-            dup2(stdout_pipe[1], STDOUT_FILENO);
-            dup2(stderr_pipe[1], STDERR_FILENO);
-            close(stdout_pipe[1]);
-            close(stderr_pipe[1]);
+            cmd_capturer.prepare_child();
 
             execvp(cstr_args[0], cstr_args.data());
             if (errno == ENOENT)
@@ -143,50 +128,9 @@ namespace nullsh
             }
         }
 
-        // Parent process
-        close(stdout_pipe[1]);
-        close(stderr_pipe[1]);
-
-        // capture child output into command result
-        res.return_code = 0;
-        {
-            char buffer[4096];
-            ssize_t count;
-            while ((count = read(stdout_pipe[0], buffer, sizeof(buffer))) > 0)
-            {
-                res.stdout_data.append(buffer, count);
-            }
-        }
-        {
-            char buffer[4096];
-            ssize_t count;
-            while ((count = read(stderr_pipe[0], buffer, sizeof(buffer))) > 0)
-            {
-                res.stderr_data.append(buffer, count);
-            }
-        }
-        close(stdout_pipe[0]);
-        close(stderr_pipe[0]);
-
-        int status = 0;
-        if (waitpid(pid, &status, 0) < 0)
-        {
-            std::perror("waitpid");
-            res.return_code = EXIT_CMD_NOT_FOUND;
-            return res;
-        }
-
-        if (WIFEXITED(status))
-        {
-            res.return_code = WEXITSTATUS(status);
-        }
-        else if (WIFSIGNALED(status))
-        {
-            std::cerr << "Process terminated by signal " << WTERMSIG(status) << "\n";
-            res.return_code = EXIT_SIGNAL_BASE + WTERMSIG(status);
-        }
+        cmd_capturer.capture_parent(pid);
 
         return res;
     }
 
-} // namespace nullsh
+} // namespace nullsh::shell

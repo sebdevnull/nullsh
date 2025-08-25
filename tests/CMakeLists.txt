@@ -16,7 +16,8 @@ add_executable(${NULLSH_TESTS}
     test_cli.cpp
     test_shell.cpp
     test_parser.cpp
-    test_command.cpp)
+    test_command.cpp
+    test_result_capturer.cpp)
 
 set_target_properties(${NULLSH_TESTS} PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}-tests

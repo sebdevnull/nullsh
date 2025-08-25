@@ -22,6 +22,7 @@ target_sources(${NULLSH_LIB} PRIVATE
     src/cli.cpp
     src/parser.cpp
     src/command.cpp
+    src/result_capturer.cpp
 )
 
 # Expose headers and generated files
