@@ -6,14 +6,13 @@
  */
 
 #include <iostream>
-#include <format>
 #include <string>
 
 #include "nullsh/cli.h"
 #include "nullsh/shell.h"
 #include "nullsh/util.h"
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     auto cli = nullsh::cli::parse_cli(argc, argv);
 
@@ -23,7 +22,7 @@ int main(int argc, char **argv)
         return 2;
     }
 
-    nullsh::NullShell sh{};
+    nullsh::shell::NullShell sh {};
 
     if (cli->one_shot)
     {

@@ -5,18 +5,18 @@
  * @license GPLv3 (see LICENSE file)
  */
 
-#include <iostream>
-#include <unistd.h>
-#include <sys/wait.h>
 #include "nullsh/shell.h"
+
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include <iostream>
+
+#include "nullsh/parser.h"
+#include "nullsh/result_capturer.h"
 #include "nullsh/util.h"
 
-// Conventional POSIX exit codes for shells
-constexpr int EXIT_CMD_NOT_EXECUTABLE = 126; // found but not executable
-constexpr int EXIT_CMD_NOT_FOUND = 127;      // command not found
-constexpr int EXIT_SIGNAL_BASE = 128;        // 128 + signal number
-
-namespace nullsh
+namespace nullsh::shell
 {
     /**
      * @brief Runs the interactive shell
@@ -25,7 +25,8 @@ namespace nullsh
      */
     int NullShell::run()
     {
-        while (1)
+        running = true;
+        while (running)
         {
             std::cout << prompt << std::flush;
 
@@ -43,7 +44,7 @@ namespace nullsh
             }
 
             int rc = dispatch(*tokens);
-            (void)rc; // reserved for later
+            (void) rc; // reserved for later
         }
 
         return -1;
@@ -55,42 +56,67 @@ namespace nullsh
      * @param args Tokenized command line
      * @return int Exit code
      */
-    int NullShell::dispatch(const std::vector<std::string> &args)
+    int NullShell::dispatch(const std::vector<std::string>& args)
     {
         if (args.empty())
+        {
             return 0;
+        }
 
-        return execute(args);
+        auto cmd = parser::parse_command(args);
+        auto res = execute(cmd);
+
+        if (cmd.ops.empty())
+        {
+            // push default operator if none specified
+            cmd.ops.push_back(command::Op::None);
+        }
+
+        for (const auto& op : cmd.ops)
+        {
+            command::apply_operator(op, res);
+        }
+
+        return res.return_code;
     }
 
     /**
      * @brief Executes a command
      *
-     * @param args Tokenized command line
-     * @return int Exit code
+     * @param cmd Command to execute
+     * @return command::CommandResult Result of command execution
      */
-    int NullShell::execute(const std::vector<std::string> &args)
+    command::CommandResult NullShell::execute(command::Command& cmd)
     {
-        if (args.empty())
-            return 0;
+        command::CommandResult res {};
+        io::CommandResultCapturer cmd_capturer {res};
 
-        std::vector<char *> cstr_args;
-        cstr_args.reserve(args.size() + 1);
-        for (const auto &arg : args)
+        if (cmd.args.empty())
         {
-            cstr_args.push_back(const_cast<char *>(arg.c_str()));
+            return res;
+        }
+
+        std::vector<char*> cstr_args;
+        cstr_args.reserve(cmd.args.size() + 1);
+        for (auto& arg : cmd.args)
+        {
+            cstr_args.push_back(arg.data());
         }
         cstr_args.push_back(nullptr);
+
+        cmd_capturer.init_pipes();
 
         pid_t pid = fork();
         if (pid < 0)
         {
             std::perror("fork");
-            return EXIT_CMD_NOT_FOUND;
+            res.return_code = EXIT_CMD_NOT_FOUND;
+            return res;
         }
-        else if (pid == 0)
+        if (pid == 0)
         {
-            // Child process
+            cmd_capturer.prepare_child();
+
             execvp(cstr_args[0], cstr_args.data());
             if (errno == ENOENT)
             {
@@ -102,25 +128,9 @@ namespace nullsh
             }
         }
 
-        // Parent process
-        int status;
-        if (waitpid(pid, &status, 0) < 0)
-        {
-            std::perror("waitpid");
-            return EXIT_CMD_NOT_FOUND;
-        }
+        cmd_capturer.capture_parent(pid);
 
-        if (WIFEXITED(status))
-        {
-            return WEXITSTATUS(status);
-        }
-        else if (WIFSIGNALED(status))
-        {
-            std::cerr << "Process terminated by signal " << WTERMSIG(status) << "\n";
-            return EXIT_SIGNAL_BASE + WTERMSIG(status);
-        }
-
-        return 0;
+        return res;
     }
 
-}
+} // namespace nullsh::shell

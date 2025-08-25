@@ -8,9 +8,11 @@
 #include <gtest/gtest.h>
 #include "nullsh/shell.h"
 
+using namespace nullsh::shell;
+
 TEST(ShellTest, BasicRun)
 {
-    nullsh::NullShell sh;
+    NullShell sh;
     std::vector<std::string> args = {"echo", "hello", "void"};
 
     // Since run() enters an infinite loop, we cannot test it directly.
@@ -26,7 +28,7 @@ TEST(ShellTest, BasicRun)
 
 TEST(ShellTest, EmptyDispatch)
 {
-    nullsh::NullShell sh;
+    NullShell sh;
     std::vector<std::string> args; // empty args
     int rc = sh.dispatch(args);
     EXPECT_EQ(rc, 0); // Should handle empty command gracefully
@@ -34,7 +36,7 @@ TEST(ShellTest, EmptyDispatch)
 
 TEST(ShellTest, SingleCommandDispatch)
 {
-    nullsh::NullShell sh;
+    NullShell sh;
     std::vector<std::string> args = {"echo", "hello", "void"};
     int rc = sh.dispatch(args);
     EXPECT_EQ(rc, 0); // Assuming execute returns 0 for success
@@ -42,7 +44,7 @@ TEST(ShellTest, SingleCommandDispatch)
 
 TEST(ShellTest, MultipleCommandsDispatch)
 {
-    nullsh::NullShell sh;
+    NullShell sh;
     std::vector<std::string> args1 = {"echo", "first", "command"};
     std::vector<std::string> args2 = {"echo", "second", "command"};
 
