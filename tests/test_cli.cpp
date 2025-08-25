@@ -6,53 +6,49 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "nullsh/cli.h"
 
 using namespace nullsh::cli;
 
 TEST(ParseCLI, OneShot)
 {
-    int argc = 3;
-    const char *argv[] = {"nullsh", "-c", "echo void"};
-    auto cli = parse_cli(argc, const_cast<char **>(argv));
+    std::array args {"nullsh", "-c", "echo void"};
+    auto cli = parse_cli(args);
     ASSERT_TRUE(cli.has_value());
     EXPECT_TRUE(cli->one_shot.has_value());
-    EXPECT_EQ(cli->one_shot.value(), "echo void");    
+    EXPECT_EQ(cli->one_shot.value(), "echo void");
 }
 
 TEST(ParseCLI, MissingArg)
 {
-    int argc = 2;
-    const char *argv[] = {"nullsh", "-c"};
-    auto cli = parse_cli(argc, const_cast<char **>(argv));
+    std::array args {"nullsh", "-c"};
+    auto cli = parse_cli(args);
     ASSERT_FALSE(cli.has_value());
     EXPECT_EQ(cli.error(), "Missing argument to -c");
 }
 
 TEST(ParseCLI, Help)
 {
-    int argc = 2;
-    const char *argv[] = {"nullsh", "-h"};
+    std::array args {"nullsh", "-h"};
     // Since -h exits the program, we cannot test it directly.
     // Instead, we can just ensure it doesn't return an error.
-    auto cli = parse_cli(argc, const_cast<char **>(argv));
+    auto cli = parse_cli(args);
     ASSERT_FALSE(cli.has_value());
 }
 
 TEST(ParseCLI, NoArgs)
 {
-    int argc = 1;
-    const char *argv[] = {"nullsh"};
-    auto cli = parse_cli(argc, const_cast<char **>(argv));
+    std::array args {"nullsh"};
+    auto cli = parse_cli(args);
     ASSERT_TRUE(cli.has_value());
     EXPECT_FALSE(cli->one_shot.has_value());
 }
 
 TEST(ParseCLI, UnknownOption)
 {
-    int argc = 2;
-    const char *argv[] = {"nullsh", "-x"};
-    auto cli = parse_cli(argc, const_cast<char **>(argv));
+    std::array args {"nullsh", "-x"};
+    auto cli = parse_cli(args);
     ASSERT_FALSE(cli.has_value());
     EXPECT_EQ(cli.error(), "Unknown option: -x");
 }

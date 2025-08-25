@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <span>
 #include <string>
 #include <optional>
 #include <expected>
@@ -19,6 +20,6 @@ namespace nullsh::cli
         std::optional<std::string> spawn_term;
     };
 
-    std::expected<CLI, std::string> parse_cli(int argc, char **argv);
+    auto parse_cli(std::span<const char *> args) -> std::expected<CLI, std::string>;
 
 } // namespace nullsh

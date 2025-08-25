@@ -6,15 +6,18 @@
  */
 
 #include <iostream>
+#include <span>
 #include <string>
 
 #include "nullsh/cli.h"
 #include "nullsh/shell.h"
 #include "nullsh/util.h"
 
-int main(int argc, char** argv)
+int main(int argc, const char* argv[])
 {
-    auto cli = nullsh::cli::parse_cli(argc, argv);
+    std::span<const char*> args(argv, static_cast<std::size_t>(argc));
+
+    auto cli = nullsh::cli::parse_cli(args);
 
     if (!cli)
     {
@@ -36,18 +39,18 @@ int main(int argc, char** argv)
         return sh.dispatch(tokens.value());
     }
 
-    if (!getenv("NULLSH_IN_TERMINAL") && cli->spawn_term)
+    if (getenv("NULLSH_IN_TERMINAL") == nullptr && cli->spawn_term)
     {
         // set to avoid infinite recursion
         setenv("NULLSH_IN_TERMINAL", "1", 1);
 
         std::string cmd = *cli->spawn_term;
-        cmd += argv[0]; // path to nullsh
+        cmd += args[0]; // path to nullsh
 
-        for (int i = 1; i < argc; i++)
+        for (const char* arg : args.subspan(1))
         {
             cmd += " ";
-            cmd += argv[i];
+            cmd += arg;
         }
 
         system(cmd.c_str());
