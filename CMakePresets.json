@@ -17,7 +17,8 @@
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_CXX_EXTENSIONS": "OFF",
                 "BUILD_TESTING": "ON",
-                "CMAKE_COLOR_DIAGNOSTICS": "ON"
+                "CMAKE_COLOR_DIAGNOSTICS": "ON",
+                "CMAKE_CXX_CLANG_TIDY": "clang-tidy-19;-p=${sourceDir}/build/${presetName};--quiet"
             }
         },
         {

@@ -6,9 +6,12 @@
  */
 
 #include "nullsh/util.h"
-#include <cctype>
-#include <sstream>
+
 #include <unistd.h>
+
+#include <cctype>
+#include <format>
+#include <sstream>
 
 namespace nullsh::util
 {
@@ -17,13 +20,15 @@ namespace nullsh::util
      *
      * @param s String to trim
      */
-    void ltrim(std::string &s)
+    void ltrim(std::string& str)
     {
         size_t start = 0;
-        while (start < s.size() && std::isspace(static_cast<unsigned char>(s[start])))
+        while (start < str.size() && std::isspace(static_cast<unsigned char>(str[start])) != 0)
+        {
             ++start;
+        }
 
-        s.erase(0, start);
+        str.erase(0, start);
     }
 
     /**
@@ -31,13 +36,15 @@ namespace nullsh::util
      *
      * @param s String to trim
      */
-    void rtrim(std::string &s)
+    void rtrim(std::string& str)
     {
-        size_t end = s.size();
-        while (end > 0 && std::isspace(static_cast<unsigned char>(s[end - 1])))
+        size_t end = str.size();
+        while (end > 0 && std::isspace(static_cast<unsigned char>(str[end - 1])) != 0)
+        {
             --end;
+        }
 
-        s.erase(end);
+        str.erase(end);
     }
 
     /**
@@ -45,10 +52,10 @@ namespace nullsh::util
      *
      * @param s String to trim
      */
-    void trim(std::string &s)
+    void trim(std::string& str)
     {
-        rtrim(s);
-        ltrim(s);
+        rtrim(str);
+        ltrim(str);
     }
 
     /**
@@ -75,10 +82,10 @@ namespace nullsh::util
 
         for (size_t i = 0; i < line.size(); ++i)
         {
-            char c = line[i];
+            char cur_c = line[i];
 
             // escape next char
-            if (c == '\\')
+            if (cur_c == '\\')
             {
                 if (i + 1 < line.size())
                 {
@@ -90,21 +97,22 @@ namespace nullsh::util
                     cur.push_back('\\');
                 }
             }
-            else if (c == '\'' && !in_double_quote)
+            else if (cur_c == '\'' && !in_double_quote)
             {
                 in_single_quote = !in_single_quote;
             }
-            else if (c == '\"' && !in_single_quote)
+            else if (cur_c == '\"' && !in_single_quote)
             {
                 in_double_quote = !in_double_quote;
             }
-            else if (std::isspace(static_cast<unsigned char>(c)) && !in_single_quote && !in_double_quote)
+            else if (std::isspace(static_cast<unsigned char>(cur_c)) != 0 && !in_single_quote &&
+                     !in_double_quote)
             {
                 push_token();
             }
             else
             {
-                cur.push_back(c);
+                cur.push_back(cur_c);
             }
         }
 
@@ -123,22 +131,26 @@ namespace nullsh::util
      * @param cmd Command to check
      * @return true if command exists, false otherwise
      */
-    bool command_exists(const std::string &cmd)
+    bool command_exists(const std::string& cmd)
     {
         if (cmd.empty())
+        {
             return false;
+        }
 
-        const char *path_env = std::getenv("PATH");
-        if (!path_env)
+        const char* path_env = std::getenv("PATH");
+        if (path_env == nullptr)
+        {
             return false;
+        }
 
         std::string path(path_env);
-        std::stringstream ss(path);
+        std::stringstream sstr(path);
         std::string dir;
 
-        while (std::getline(ss, dir, ':'))
+        while (std::getline(sstr, dir, ':'))
         {
-            std::string full_path = dir + "/" + cmd;
+            std::string full_path = std::format("{}/{}", dir, cmd);
             if (access(full_path.c_str(), X_OK) == 0)
             {
                 return true;

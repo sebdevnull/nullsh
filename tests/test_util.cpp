@@ -6,62 +6,63 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "nullsh/util.h"
 
 TEST(LTrimTest, RemovesSpaces)
 {
-    std::string s = "     test";
-    nullsh::util::ltrim(s);
-    EXPECT_EQ(s, "test");
+    std::string str = "     test";
+    nullsh::util::ltrim(str);
+    EXPECT_EQ(str, "test");
 }
 
 TEST(RTrimTest, RemovesSpaces)
 {
-    std::string s = "test    ";
-    nullsh::util::rtrim(s);
-    EXPECT_EQ(s, "test");
+    std::string str = "test    ";
+    nullsh::util::rtrim(str);
+    EXPECT_EQ(str, "test");
 }
 
 TEST(TrimTest, RemovesSpaces)
 {
-    std::string s = "     test      ";
-    nullsh::util::trim(s);
-    EXPECT_EQ(s, "test");
+    std::string str = "     test      ";
+    nullsh::util::trim(str);
+    EXPECT_EQ(str, "test");
 }
 
 TEST(TrimTest, KeepsInternalSpaces)
 {
-    std::string s = "     hello void    ";
-    nullsh::util::trim(s);
-    EXPECT_EQ(s, "hello void");
+    std::string str = "     hello void    ";
+    nullsh::util::trim(str);
+    EXPECT_EQ(str, "hello void");
 }
 
 TEST(TrimTest, EmptyString)
 {
-    std::string s = "";
-    nullsh::util::trim(s);
-    EXPECT_EQ(s, "");
+    std::string str {};
+    nullsh::util::trim(str);
+    EXPECT_EQ(str, "");
 }
 
 TEST(TrimTest, AllSpaces)
 {
-    std::string s = "       ";
-    nullsh::util::trim(s);
-    EXPECT_EQ(s, "");
+    std::string str = "       ";
+    nullsh::util::trim(str);
+    EXPECT_EQ(str, "");
 }
 
 TEST(TrimTest, NoSpaces)
 {
-    std::string s = "void";
-    nullsh::util::trim(s);
-    EXPECT_EQ(s, "void");
+    std::string str = "void";
+    nullsh::util::trim(str);
+    EXPECT_EQ(str, "void");
 }
 
 TEST(TrimTest, MixedWhitespace)
 {
-    std::string s = "\t  \n  void \t \n ";
-    nullsh::util::trim(s);
-    EXPECT_EQ(s, "void");
+    std::string str = "\t  \n  void \t \n ";
+    nullsh::util::trim(str);
+    EXPECT_EQ(str, "void");
 }
 
 TEST(TokenizeTest, SimpleCommand)
@@ -86,7 +87,8 @@ TEST(TokenizeTest, QuotedArguments)
 
 TEST(TokenizeTest, MixedQuotes)
 {
-    auto result = nullsh::util::tokenize("cmd \"arg with 'single quotes'\" 'arg with \"double quotes\"'");
+    auto result =
+        nullsh::util::tokenize(R"(cmd "arg with 'single quotes'" 'arg with "double quotes"')");
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(result->size(), 3);
     EXPECT_EQ((*result)[0], "cmd");
@@ -96,7 +98,7 @@ TEST(TokenizeTest, MixedQuotes)
 
 TEST(TokenizeTest, EscapedQuotes)
 {
-    auto result = nullsh::util::tokenize("echo \\\"escaped\\\" \\'quotes\\'");
+    auto result = nullsh::util::tokenize(R"(echo \"escaped\" \'quotes\')");
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(result->size(), 3);
     EXPECT_EQ((*result)[0], "echo");
@@ -176,37 +178,44 @@ TEST(CommandExistsTest, NullCommand)
 
 TEST(CommandExistsTest, CommandWithPath)
 {
-    EXPECT_FALSE(nullsh::util::command_exists("/bin/ls")); // Should return false as we check only command names
+    EXPECT_FALSE(nullsh::util::command_exists(
+        "/bin/ls")); // Should return false as we check only command names
 }
 
 TEST(CommandExistsTest, CommandWithArguments)
 {
-    EXPECT_FALSE(nullsh::util::command_exists("ls -l")); // Should return false as we check only command names
+    EXPECT_FALSE(nullsh::util::command_exists(
+        "ls -l")); // Should return false as we check only command names
 }
 
 TEST(CommandExistsTest, CommandWithSpecialChars)
 {
-    EXPECT_FALSE(nullsh::util::command_exists("ls; echo void")); // Should return false as we check only command names
+    EXPECT_FALSE(nullsh::util::command_exists(
+        "ls; echo void")); // Should return false as we check only command names
 }
 
 TEST(CommandExistsTest, CommandWithSpaces)
 {
-    EXPECT_FALSE(nullsh::util::command_exists("ls ")); // Should return false as we check only command names
+    EXPECT_FALSE(
+        nullsh::util::command_exists("ls ")); // Should return false as we check only command names
 }
 
 TEST(CommandExistsTest, CommandWithTabs)
 {
-    EXPECT_FALSE(nullsh::util::command_exists("ls\t")); // Should return false as we check only command names
+    EXPECT_FALSE(
+        nullsh::util::command_exists("ls\t")); // Should return false as we check only command names
 }
 
 TEST(CommandExistsTest, CommandWithNewline)
 {
-    EXPECT_FALSE(nullsh::util::command_exists("ls\n")); // Should return false as we check only command names
+    EXPECT_FALSE(
+        nullsh::util::command_exists("ls\n")); // Should return false as we check only command names
 }
 
 TEST(CommandExistsTest, CommandWithMixedWhitespace)
 {
-    EXPECT_FALSE(nullsh::util::command_exists("  ls  ")); // Should return false as we check only command names
+    EXPECT_FALSE(nullsh::util::command_exists(
+        "  ls  ")); // Should return false as we check only command names
 }
 
 TEST(CommandExistsTest, VeryLongCommand)

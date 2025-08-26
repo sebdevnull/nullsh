@@ -11,7 +11,7 @@
 
 namespace nullsh::parser
 {
-    auto parse_operator(const std::string_view token) -> nullsh::command::Op;
+    auto parse_operator(std::string_view token) -> nullsh::command::Op;
     auto parse_command(const std::vector<std::string>& tokens) -> nullsh::command::Command;
 
 } // namespace nullsh::parser

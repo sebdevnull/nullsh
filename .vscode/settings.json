@@ -6,7 +6,7 @@
   "cmake.parallelJobs": 4,
   "cmake.generator": "Ninja",
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "C_Cpp.errorSquiggles": "enabled",
+  "C_Cpp.errorSquiggles": "disabled",
   "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
   "C_Cpp.intelliSenseEngine": "disabled",
   "C_Cpp.formatting": "disabled",

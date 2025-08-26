@@ -7,16 +7,16 @@
 
 #pragma once
 
-#include <string>
 #include <expected>
-#include <vector>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace nullsh::util
 {
-    void ltrim(std::string &s);
-    void rtrim(std::string &s);
-    void trim(std::string &s);
+    void ltrim(std::string& str);
+    void rtrim(std::string& str);
+    void trim(std::string& str);
     std::expected<std::vector<std::string>, std::string> tokenize(std::string_view line);
-    bool command_exists(const std::string &cmd);
+    bool command_exists(const std::string& cmd);
 } // namespace nullsh::util

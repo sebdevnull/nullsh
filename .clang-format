@@ -7,10 +7,8 @@ UseTab: Never
 ColumnLimit: 100
 IndentCaseLabels: true
 BreakBeforeBraces: Allman
-AllowShortFunctionsOnASingleLine: Empty  # one-liners okay if trivial
-# AllowShortFunctionsOnASingleLine: None
-# AllowShortIfStatementsOnASingleLine: Never
-# AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: Empty
+IndentRequiresClause: true
 
 # --- Includes ---
 SortIncludes: true
@@ -32,6 +30,7 @@ SpaceAfterCStyleCast: true
 SpaceBeforeCpp11BracedList: true
 SpacesInAngles: false
 SpacesInParentheses: false
+SpaceAroundPointerQualifiers: Both
 
 # --- Lambdas & Functions ---
 LambdaBodyIndentation: Signature

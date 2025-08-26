@@ -18,19 +18,19 @@ namespace nullsh::cli
 {
     using namespace std::literals;
 
-    constexpr std::string_view helpmsg = "NullShell - embrace the void\n\n"
-                                         "Usage:\n"
-                                         "  nullsh            Start interactive shell\n"
-                                         "  nullsh -c \"cmd\"  Execute a single command\n";
+    constexpr std::string_view HELP_MSG = "NullShell - embrace the void\n\n"
+                                          "Usage:\n"
+                                          "  nullsh            Start interactive shell\n"
+                                          "  nullsh -c \"cmd\"  Execute a single command\n";
 
     namespace
     {
-        const std::vector<std::string> terms = {
+        const std::vector<std::string> TERMS = {
             "gnome-terminal", "konsole", "xfce4-terminal", "lxterminal", "alacritty", "xterm"};
 
         inline void spawn_terminal(CLI& cli)
         {
-            for (const auto& term : terms)
+            for (const auto& term : TERMS)
             {
                 if (nullsh::util::command_exists(term))
                 {
@@ -78,7 +78,7 @@ namespace nullsh::cli
             }
             else if (arg == "-h"sv || arg == "--help"sv)
             {
-                std::cout << helpmsg;
+                std::cout << HELP_MSG;
                 std::exit(0);
             }
             else if (arg == "-s"sv || arg == "--spawn"sv)

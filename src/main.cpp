@@ -25,18 +25,19 @@ int main(int argc, const char* argv[])
         return 2;
     }
 
-    nullsh::shell::NullShell sh {};
+    nullsh::shell::NullShell shell {};
 
     if (cli->one_shot)
     {
-        auto tokens = nullsh::util::tokenize(*cli->one_shot);
+        auto tokens =
+            nullsh::util::tokenize(*cli->one_shot); // NOLINT(bugprone-unchecked-optional-access)
         if (!tokens)
         {
             std::cerr << "parse error: " << tokens.error() << "\n";
             return 2;
         }
 
-        return sh.dispatch(tokens.value());
+        return shell.dispatch(tokens.value());
     }
 
     if (getenv("NULLSH_IN_TERMINAL") == nullptr && cli->spawn_term)
@@ -44,8 +45,8 @@ int main(int argc, const char* argv[])
         // set to avoid infinite recursion
         setenv("NULLSH_IN_TERMINAL", "1", 1);
 
-        std::string cmd = *cli->spawn_term;
-        cmd += args[0]; // path to nullsh
+        std::string cmd = *cli->spawn_term; // NOLINT(bugprone-unchecked-optional-access)
+        cmd += args[0];                     // path to nullsh
 
         for (const char* arg : args.subspan(1))
         {
@@ -57,7 +58,7 @@ int main(int argc, const char* argv[])
         return 0; // exit parent process
     }
 
-    sh.run();
+    shell.run();
 
     return 0;
 }

@@ -42,8 +42,8 @@ namespace nullsh::io
         close(stdout_pipe[1]);
         close(stderr_pipe[1]);
 
-        read_pipe(stdout_pipe[0], res->stdout_data);
-        read_pipe(stderr_pipe[0], res->stderr_data);
+        read_pipe(stdout_pipe[0], cmd_result->stdout_data);
+        read_pipe(stderr_pipe[0], cmd_result->stderr_data);
 
         close(stdout_pipe[0]);
         close(stderr_pipe[0]);
@@ -52,18 +52,18 @@ namespace nullsh::io
         if (waitpid(pid, &status, 0) < 0)
         {
             std::perror("waitpid");
-            res->return_code = nullsh::shell::EXIT_CMD_NOT_FOUND;
+            cmd_result->return_code = nullsh::shell::EXIT_CMD_NOT_FOUND;
             return;
         }
 
         if (WIFEXITED(status))
         {
-            res->return_code = WEXITSTATUS(status);
+            cmd_result->return_code = WEXITSTATUS(status);
         }
         else if (WIFSIGNALED(status))
         {
             std::cerr << "Process terminated by signal " << WTERMSIG(status) << "\n";
-            res->return_code = nullsh::shell::EXIT_SIGNAL_BASE + WTERMSIG(status);
+            cmd_result->return_code = nullsh::shell::EXIT_SIGNAL_BASE + WTERMSIG(status);
         }
     }
 

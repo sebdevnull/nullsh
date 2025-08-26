@@ -7,10 +7,10 @@
 
 #pragma once
 
+#include <expected>
+#include <optional>
 #include <span>
 #include <string>
-#include <optional>
-#include <expected>
 
 namespace nullsh::cli
 {
@@ -20,6 +20,6 @@ namespace nullsh::cli
         std::optional<std::string> spawn_term;
     };
 
-    auto parse_cli(std::span<const char *> args) -> std::expected<CLI, std::string>;
+    auto parse_cli(std::span<const char*> args) -> std::expected<CLI, std::string>;
 
-} // namespace nullsh
+} // namespace nullsh::cli

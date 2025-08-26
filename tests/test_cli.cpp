@@ -16,8 +16,8 @@ TEST(ParseCLI, OneShot)
     std::array args {"nullsh", "-c", "echo void"};
     auto cli = parse_cli(args);
     ASSERT_TRUE(cli.has_value());
-    EXPECT_TRUE(cli->one_shot.has_value());
-    EXPECT_EQ(cli->one_shot.value(), "echo void");
+    ASSERT_TRUE(cli->one_shot.has_value());
+    EXPECT_EQ(*cli->one_shot, "echo void"); // NOLINT(bugprone-unchecked-optional-access)
 }
 
 TEST(ParseCLI, MissingArg)

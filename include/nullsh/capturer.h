@@ -18,7 +18,7 @@ namespace nullsh::io
         IOCapturer() = default;
         IOCapturer(const IOCapturer&) = delete;
         IOCapturer& operator=(const IOCapturer&) = delete;
-        IOCapturer(IOCapturer &&) = delete;
+        IOCapturer(IOCapturer&&) = delete;
         IOCapturer& operator=(IOCapturer&&) = delete;
 
         virtual void prepare_child() = 0;
