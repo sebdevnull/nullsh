@@ -12,7 +12,8 @@ Checks: >
   -readability-magic-numbers,
   -misc-const-correctness,
   -misc-include-cleaner,
-  -readability-convert-member-functions-to-static
+  -readability-convert-member-functions-to-static,
+  -performance-enum-size
 
 CheckOptions:
   # Readability – naming rules
@@ -21,9 +22,9 @@ CheckOptions:
   - key: readability-identifier-length.MinimumParameterNameLength
     value: "3"
   - key: readability-identifier-length.IgnoredParameterNames
-    value: "^(i|j|k|x|y|z|fd|id|rc|db|ok|op)$"
+    value: "^(i|j|k|x|y|z|fd|id|rc|db|ok|op|sh)$"
   - key: readability-identifier-length.IgnoredVariableNames
-    value: "^(i|j|k|x|y|z|fd|id|rc|db|ok|op)$"
+    value: "^(i|j|k|x|y|z|fd|id|rc|db|ok|op|sh|it)$"
   - key: readability-identifier-naming.VariableCase
     value: lower_case
   - key: readability-identifier-naming.ParameterCase
