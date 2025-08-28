@@ -7,23 +7,30 @@
 
 #pragma once
 
-#include <cstdint>
 #include <string>
 #include <vector>
 
 namespace nullsh::command
 {
-    enum class Op : std::uint8_t
+    enum class Op
     {
         None,          // default
         ForceOutput,   // ! -> force print stdout
         DiscardOutput, // ? -> discard stdout + stderr
         PrintRC,       // $? -> print return code
-        PrintRCHuman,  // $?? -> human-readable RC
+        PrintRCHuman,  // $$? -> human-readable RC
+    };
+
+    enum class CommandType
+    {
+        Builtin,
+        External
     };
 
     struct Command
     {
+        CommandType type;
+        std::string name;
         std::vector<std::string> args;
         std::vector<Op> ops;
     };
@@ -34,6 +41,4 @@ namespace nullsh::command
         std::string stdout_data;
         std::string stderr_data;
     };
-
-    void apply_operator(Op op, CommandResult& res);
 } // namespace nullsh::command
