@@ -10,8 +10,11 @@
 #include <unistd.h>
 
 #include <cctype>
+#include <filesystem>
 #include <format>
+#include <optional>
 #include <sstream>
+#include <system_error>
 
 namespace nullsh::util
 {
@@ -158,6 +161,83 @@ namespace nullsh::util
         }
 
         return false;
+    }
+
+    /**
+     * @brief Gets the value of an environment variable
+     *
+     * @param name
+     * @return std::optional<std::string>
+     */
+    auto get_env_var(const std::string& name) -> std::optional<std::string>
+    {
+        if (const char* value = std::getenv(name.c_str()); value != nullptr)
+        {
+            return std::string(value);
+        }
+        return std::nullopt;
+    }
+
+    /**
+     * @brief Expands a user path, replacing ~ with the user's home directory
+     *
+     * @param path
+     * @return std::filesystem::path
+     */
+    auto expand_user_path(const std::string& path) -> std::filesystem::path
+    {
+        if (path.empty() || path[0] != '~')
+        {
+            return {path};
+        }
+
+        auto home = get_env_var("HOME");
+        if (!home.has_value())
+        {
+            return {path};
+        }
+
+        if (path.size() == 1)
+        {
+            return {*home};
+        }
+
+        if (path[1] == '/')
+        {
+            return std::filesystem::path(*home) / path.substr(2);
+        }
+
+        return {path};
+    }
+
+    /**
+     * @brief Resolves a directory path to an absolute path, checking existence and type
+     *
+     * @param path Input path to resolve
+     * @param resolved_path Output parameter for the resolved absolute path
+     * @return std::error_code indicating success or failure reason
+     */
+    std::error_code resolve_directory(const std::filesystem::path& path,
+                                      std::filesystem::path& resolved_path)
+    {
+        std::error_code ec;
+        resolved_path = std::filesystem::absolute(path, ec);
+        if (ec)
+        {
+            return ec;
+        }
+
+        if (!std::filesystem::exists(resolved_path, ec))
+        {
+            return ec ? ec : std::make_error_code(std::errc::no_such_file_or_directory);
+        }
+
+        if (!std::filesystem::is_directory(resolved_path, ec))
+        {
+            return ec ? ec : std::make_error_code(std::errc::not_a_directory);
+        }
+
+        return {};
     }
 
 } // namespace nullsh::util

@@ -40,6 +40,11 @@ namespace nullsh::shell
         running = true;
         while (running)
         {
+            if (has_exit)
+            {
+                std::exit(last_status_);
+            }
+
             std::cout << prompt << std::flush;
 
             std::string line;
@@ -80,6 +85,11 @@ namespace nullsh::shell
         last_status_ = res.return_code;
 
         return res.return_code;
+    }
+
+    void NullShell::exit()
+    {
+        has_exit = true;
     }
 
     /**

@@ -7,82 +7,123 @@
 
 #include "nullsh/builtins.h"
 
-#include <linux/limits.h>
-#include <unistd.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <format>
 #include <ranges>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
 #include "nullsh/shell.h"
+#include "nullsh/util.h"
 
 namespace nullsh::builtins
 {
-    using Handler = command::CommandResult (*)(command::Command&);
+    using Handler = command::CommandResult (*)(command::Command&, shell::NullShell&);
 
     namespace
     {
-        command::CommandResult builtin_cd(command::Command& cmd)
+        namespace fs = std::filesystem;
+
+        command::CommandResult builtin_cd(command::Command& cmd,
+                                          [[maybe_unused]] shell::NullShell& sh)
         {
-            std::string path;
-
-            if (cmd.args.empty())
+            try
             {
-                path = getenv("HOME");
-
-                if (path.empty())
+                fs::path new_path;
+                if (cmd.args.empty())
                 {
-                    return {.return_code = 1, .stdout_data = "", .stderr_data = "cd: HOME not set"};
+                    auto home = util::get_env_var("HOME");
+
+                    if (!home.has_value())
+                    {
+                        return {
+                            .return_code = 1, .stdout_data = "", .stderr_data = "cd: HOME not set"};
+                    }
+                    new_path = fs::path(*home);
                 }
-            }
-            else
-            {
-                path = cmd.args[0];
-            }
+                else if (cmd.args.size() > 1)
+                {
+                    return {.return_code = 1,
+                            .stdout_data = "",
+                            .stderr_data = "cd: too many arguments"};
+                }
+                else
+                {
+                    new_path = util::expand_user_path(cmd.args[0]);
+                }
 
-            if (chdir(path.c_str()) != 0)
+                fs::path resolved_path;
+                auto ec = util::resolve_directory(new_path, resolved_path);
+                if (ec)
+                {
+                    return {.return_code = ec.value(),
+                            .stdout_data = "",
+                            .stderr_data = "cd: " + new_path.string() + ": " + ec.message()};
+                }
+
+                // change directory
+                fs::current_path(resolved_path);
+
+                // set PWD environment variable
+                setenv("PWD", resolved_path.c_str(), 1);
+
+                return {.return_code = 0, .stdout_data = "", .stderr_data = ""};
+            }
+            catch (const fs::filesystem_error& e)
             {
-                return {.return_code = errno,
+                return {.return_code = 1,
                         .stdout_data = "",
-                        .stderr_data = std::string("cd: ") + strerror(errno)};
+                        .stderr_data = "cd: " + std::string(e.what())};
             }
-
-            // char cwd[PATH_MAX];
-            // if (getcwd(cwd, sizeof(cwd)))
-            // {
-            //     setenv("PWD", cwd, 1);
-            // }
-
-            return {.return_code = 0, .stdout_data = "", .stderr_data = ""};
         }
 
-        command::CommandResult builtin_pwd([[maybe_unused]] command::Command& cmd)
+        command::CommandResult builtin_pwd([[maybe_unused]] command::Command& cmd,
+                                           [[maybe_unused]] shell::NullShell& sh)
         {
-            std::string cwd(PATH_MAX, '\0');
-            if (getcwd(cwd.data(), cwd.size()) != nullptr)
+            // namespace fs = std::filesystem;
+            try
             {
-                return {.return_code = 0, .stdout_data = cwd + "\n", .stderr_data = ""};
+                fs::path cwd = fs::current_path();
+                return {.return_code = 0, .stdout_data = cwd.string() + "\n", .stderr_data = ""};
             }
-
-            return {
-                .return_code = errno, .stdout_data = "", .stderr_data = "pwd: failed to getcwd"};
+            catch (const fs::filesystem_error& e)
+            {
+                return {.return_code = errno, .stdout_data = "", .stderr_data = e.what()};
+            }
         }
 
-        command::CommandResult builtin_exit(command::Command& cmd)
+        command::CommandResult builtin_exit(command::Command& cmd, shell::NullShell& sh)
         {
             int status = 0;
             if (!cmd.args.empty())
             {
-                status = std::stoi(cmd.args[0]);
+                try
+                {
+                    status = std::stoi(cmd.args[0]);
+                }
+                catch (const std::invalid_argument& e)
+                {
+                    return {.return_code = 1,
+                            .stdout_data = "",
+                            .stderr_data = "exit: numeric argument required"};
+                }
+                catch (const std::out_of_range& e)
+                {
+                    return {.return_code = 1,
+                            .stdout_data = "",
+                            .stderr_data = "exit: numeric argument out of range"};
+                }
             }
-            std::exit(status);
+            sh.exit();
+            return {.return_code = status, .stdout_data = "", .stderr_data = ""};
         }
 
-        command::CommandResult builtin_echo(command::Command& cmd)
+        command::CommandResult builtin_echo(command::Command& cmd,
+                                            [[maybe_unused]] shell::NullShell& sh)
         {
             auto joined = cmd.args | std::views::join_with(' ');
             auto out = std::format("{}\n", std::string(joined.begin(), joined.end()));
@@ -98,17 +139,30 @@ namespace nullsh::builtins
         {"echo", &builtin_echo}  //
     };
 
+    /**
+     * @brief Checks if a command is a built-in
+     *
+     * @param name Command name
+     * @return true if built-in, false otherwise
+     */
     bool is_builtin(const std::string& name)
     {
         return BUILTINS_TABLE.contains(name);
     }
 
-    command::CommandResult execute(command::Command& cmd, [[maybe_unused]] shell::NullShell& sh)
+    /**
+     * @brief Executes a built-in command
+     *
+     * @param cmd Command to execute
+     * @param sh Shell context
+     * @return command::CommandResult Result of command execution
+     */
+    command::CommandResult execute(command::Command& cmd, shell::NullShell& sh)
     {
         auto entry = BUILTINS_TABLE.find(cmd.name);
         if (entry != BUILTINS_TABLE.end())
         {
-            return entry->second(cmd);
+            return entry->second(cmd, sh);
         }
 
         return {.return_code = shell::EXIT_CMD_NOT_FOUND,

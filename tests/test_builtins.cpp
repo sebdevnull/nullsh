@@ -185,7 +185,7 @@ TEST(BuiltinsTest, ExecuteExitInvalidArg)
     // For now, we'll just ensure it doesn't throw an exception.
     EXPECT_NO_THROW({
         auto res = execute(cmd, sh);
-        EXPECT_EQ(res.return_code, 0); // should not reach here
+        EXPECT_NE(res.return_code, 0); // should not reach here
     });
 }
 

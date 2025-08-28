@@ -22,12 +22,14 @@ namespace nullsh::shell
     class NullShell
     {
         bool running {false};
+        bool has_exit {false};
 
       public:
         NullShell() = default;
 
         int run();
         int execute(const std::vector<std::string>& args);
+        void exit();
 
       private:
         std::string prompt {"nullsh>"};
