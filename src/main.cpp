@@ -54,8 +54,7 @@ int main(int argc, const char* argv[])
             cmd += arg;
         }
 
-        system(cmd.c_str());
-        return 0; // exit parent process
+        return system(cmd.c_str());
     }
 
     shell.run();
