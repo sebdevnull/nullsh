@@ -1,13 +1,38 @@
 /**
  * @file version.h
  * @brief Version information for nullsh
- * 
+ *
  * @license GPLv3 (see LICENSE file)
  */
 
 #pragma once
 
-#define NULLSH_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
-#define NULLSH_VERSION_MINOR @PROJECT_VERSION_MINOR@
-#define NULLSH_VERSION_PATCH @PROJECT_VERSION_PATCH@
-#define NULLSH_VERSION "@PROJECT_VERSION@"
+#include <string_view>
+#include <tuple>
+
+namespace nullsh
+{
+    // ---- Semantic version ----
+    inline constexpr int VERSION_MAJOR = @PROJECT_VERSION_MAJOR@;
+    inline constexpr int VERSION_MINOR = @PROJECT_VERSION_MINOR@;
+    inline constexpr int VERSION_PATCH = @PROJECT_VERSION_PATCH@;
+
+    inline constexpr const char* VERSION_STR = "@PROJECT_VERSION@";
+    inline constexpr auto VERSION_TUPLE =
+        std::make_tuple(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+
+    // ---- Build metadata ----
+    inline constexpr std::string_view BUILD_TYPE = "@NULLSH_BUILD_TYPE@";
+    inline constexpr std::string_view COMPILER_ID = "@NULLSH_COMPILER_ID@";
+    inline constexpr std::string_view COMPILER_VERSION = "@NULLSH_COMPILER_VERSION@";
+
+    inline constexpr std::string_view GIT_COMMIT = "@NULLSH_GIT_COMMIT@";
+    inline constexpr std::string_view GIT_BRANCH = "@NULLSH_GIT_BRANCH@";
+    inline constexpr std::string_view GIT_TAG = "@NULLSH_GIT_TAG@";
+
+    inline constexpr std::string_view SYSTEM_NAME = "@NULLSH_SYSTEM_NAME@";
+    inline constexpr std::string_view SYSTEM_PROCESSOR = "@NULLSH_SYSTEM_PROCESSOR@";
+    inline constexpr std::string_view CMAKE_VERSION = "@NULLSH_CMAKE_VERSION@";
+    inline constexpr std::string_view BUILD_TIMESTAMP = "@NULLSH_BUILD_TIMESTAMP@";
+
+} // namespace nullsh

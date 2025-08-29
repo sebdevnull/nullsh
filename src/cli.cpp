@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "nullsh/util.h"
+#include "nullsh/version.h"
 
 namespace nullsh::cli
 {
@@ -88,6 +89,25 @@ namespace nullsh::cli
                 {
                     return std::unexpected("Unable to find suitable terminal emulator wrapper");
                 }
+            }
+            else if (arg == "-v"sv || arg == "--version"sv)
+            {
+                std::cout << "NullShell version " << VERSION_STR << " (commit " << GIT_COMMIT
+                          << ")\n"
+                          << "Build type: " << BUILD_TYPE << "\n"
+                          << "Compiler: " << COMPILER_ID << " " << COMPILER_VERSION << "\n";
+                std::exit(0);
+            }
+            else if (arg == "--build-info")
+            {
+                std::cout << "NullShell version " << VERSION_STR << " (commit " << GIT_COMMIT
+                          << ", branch " << GIT_BRANCH << ", tag " << GIT_TAG << ")\n"
+                          << "Build type:     " << BUILD_TYPE << "\n"
+                          << "Compiler:       " << COMPILER_ID << " " << COMPILER_VERSION << "\n"
+                          << "System:         " << SYSTEM_NAME << " (" << SYSTEM_PROCESSOR << ")\n"
+                          << "CMake version:  " << CMAKE_VERSION << "\n"
+                          << "Build timestamp:" << BUILD_TIMESTAMP << "\n";
+                std::exit(0);
             }
             else
             {
