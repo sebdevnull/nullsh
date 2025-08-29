@@ -69,10 +69,10 @@ namespace nullsh::parser
                 cmd.args.pop_back();
             }
 
-            // if (cmd.ops.empty())
-            // {
-            //     cmd.ops.push_back(command::Op::None);
-            // }
+            if (cmd.ops.empty())
+            {
+                cmd.ops.push_back(command::Op::None);
+            }
         }
 
         return cmd;

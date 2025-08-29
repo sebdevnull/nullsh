@@ -31,7 +31,7 @@ TEST(ParserTest, ParseCommand)
     // NOLINTBEGIN(bugprone-unchecked-optional-access)
     EXPECT_EQ(cmd->name, "cat");
     EXPECT_EQ(cmd->args, std::vector<std::string>({"file.txt"}));
-    EXPECT_TRUE(cmd->ops.empty());
+    EXPECT_EQ(cmd->ops, std::vector<Op>({Op::None}));
     // NOLINTEND(bugprone-unchecked-optional-access)
 }
 
