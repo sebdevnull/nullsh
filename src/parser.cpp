@@ -7,11 +7,14 @@
 
 #include "nullsh/parser.h"
 
+#include <optional>
+
+#include "nullsh/builtins.h"
 #include "nullsh/command.h"
 
 namespace nullsh::parser
 {
-    auto parse_operator(std::string_view token) -> nullsh::command::Op
+    auto parse_operator(std::string_view token) -> command::Op
     {
         using namespace std::literals;
 
@@ -29,7 +32,7 @@ namespace nullsh::parser
         {
             op = command::Op::PrintRC;
         }
-        else if (token == "$??"sv)
+        else if (token == "$$?"sv)
         {
             op = command::Op::PrintRCHuman;
         }
@@ -37,22 +40,42 @@ namespace nullsh::parser
         return op;
     }
 
-    auto parse_command(const std::vector<std::string>& tokens) -> nullsh::command::Command
+    std::optional<command::Command> make_command(const std::vector<std::string>& args)
     {
-        nullsh::command::Command cmd {};
-
-        for (const auto& token : tokens)
+        if (args.empty())
         {
-            if (auto op = parse_operator(token); op != command::Op::None)
+            return std::nullopt;
+        }
+
+        command::Command cmd {};
+        cmd.name = args[0];
+        cmd.args.assign(args.begin() + 1, args.end());
+
+        if (builtins::is_builtin(cmd.name))
+        {
+            cmd.type = command::CommandType::Builtin;
+        }
+        else
+        {
+            cmd.type = command::CommandType::External;
+        }
+
+        if (!cmd.args.empty())
+        {
+            command::Op op = command::Op::None;
+            while (!cmd.args.empty() && (op = parse_operator(cmd.args.back())) != command::Op::None)
             {
-                cmd.ops.push_back(op);
+                cmd.ops.insert(cmd.ops.begin(), op);
+                cmd.args.pop_back();
             }
-            else
-            {
-                cmd.args.push_back(token);
-            }
+
+            // if (cmd.ops.empty())
+            // {
+            //     cmd.ops.push_back(command::Op::None);
+            // }
         }
 
         return cmd;
     }
+
 } // namespace nullsh::parser

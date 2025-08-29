@@ -11,13 +11,25 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <unordered_map>
 
+#include "nullsh/builtins.h"
+#include "nullsh/command.h"
+#include "nullsh/executor.h"
 #include "nullsh/parser.h"
-#include "nullsh/result_capturer.h"
 #include "nullsh/util.h"
 
 namespace nullsh::shell
 {
+    using ExecutorFn = command::CommandResult (*)(command::Command&, NullShell&);
+
+    static const std::unordered_map<command::CommandType, ExecutorFn> DISPATCH_TABLE = {
+        {command::CommandType::Builtin,
+         [](auto& cmd, auto& sh) { return builtins::execute(cmd, sh); }},
+        {command::CommandType::External,
+         [](auto& cmd, auto&) { return executor::exec_external(cmd); }},
+    };
+
     /**
      * @brief Runs the interactive shell
      *
@@ -28,6 +40,11 @@ namespace nullsh::shell
         running = true;
         while (running)
         {
+            if (has_exit)
+            {
+                std::exit(last_status_);
+            }
+
             std::cout << prompt << std::flush;
 
             std::string line;
@@ -43,7 +60,7 @@ namespace nullsh::shell
                 continue;
             }
 
-            int rc = dispatch(*tokens);
+            int rc = execute(*tokens);
             (void) rc; // reserved for later
         }
 
@@ -56,28 +73,23 @@ namespace nullsh::shell
      * @param args Tokenized command line
      * @return int Exit code
      */
-    int NullShell::dispatch(const std::vector<std::string>& args)
+    int NullShell::execute(const std::vector<std::string>& args)
     {
-        if (args.empty())
+        auto cmd = parser::make_command(args);
+        if (!cmd)
         {
             return 0;
         }
 
-        auto cmd = parser::parse_command(args);
-        auto res = execute(cmd);
-
-        if (cmd.ops.empty())
-        {
-            // push default operator if none specified
-            cmd.ops.push_back(command::Op::None);
-        }
-
-        for (const auto& op : cmd.ops)
-        {
-            command::apply_operator(op, res);
-        }
+        auto res = execute_command(*cmd);
+        last_status_ = res.return_code;
 
         return res.return_code;
+    }
+
+    void NullShell::exit()
+    {
+        has_exit = true;
     }
 
     /**
@@ -86,51 +98,22 @@ namespace nullsh::shell
      * @param cmd Command to execute
      * @return command::CommandResult Result of command execution
      */
-    command::CommandResult NullShell::execute(command::Command& cmd)
+    command::CommandResult NullShell::execute_command(command::Command& cmd)
     {
-        command::CommandResult res {};
-        io::CommandResultCapturer cmd_capturer {res};
-
-        if (cmd.args.empty())
+        if (auto it = DISPATCH_TABLE.find(cmd.type); it != DISPATCH_TABLE.end())
         {
+            auto res = it->second(cmd, *this);
+
+            for (auto op : cmd.ops)
+            {
+                executor::apply_operator(op, res);
+            }
+
             return res;
         }
 
-        std::vector<char*> cstr_args;
-        cstr_args.reserve(cmd.args.size() + 1);
-        for (auto& arg : cmd.args)
-        {
-            cstr_args.push_back(arg.data());
-        }
-        cstr_args.push_back(nullptr);
-
-        cmd_capturer.init_pipes();
-
-        pid_t pid = fork();
-        if (pid < 0)
-        {
-            std::perror("fork");
-            res.return_code = EXIT_CMD_NOT_FOUND;
-            return res;
-        }
-        if (pid == 0)
-        {
-            cmd_capturer.prepare_child();
-
-            execvp(cstr_args[0], cstr_args.data());
-            if (errno == ENOENT)
-            {
-                _exit(EXIT_CMD_NOT_FOUND);
-            }
-            else
-            {
-                _exit(EXIT_CMD_NOT_EXECUTABLE);
-            }
-        }
-
-        cmd_capturer.capture_parent(pid);
-
-        return res;
+        return {
+            .return_code = EXIT_CMD_NOT_FOUND, .stdout_data = "", .stderr_data = "Unknown command"};
     }
 
 } // namespace nullsh::shell

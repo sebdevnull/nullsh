@@ -7,11 +7,13 @@
 
 #pragma once
 
+#include <optional>
+
 #include "nullsh/command.h"
 
 namespace nullsh::parser
 {
-    auto parse_operator(std::string_view token) -> nullsh::command::Op;
-    auto parse_command(const std::vector<std::string>& tokens) -> nullsh::command::Command;
+    auto parse_operator(std::string_view token) -> command::Op;
+    std::optional<command::Command> make_command(const std::vector<std::string>& args);
 
 } // namespace nullsh::parser

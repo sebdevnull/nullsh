@@ -22,16 +22,19 @@ namespace nullsh::shell
     class NullShell
     {
         bool running {false};
+        bool has_exit {false};
 
       public:
         NullShell() = default;
 
         int run();
-        int dispatch(const std::vector<std::string>& args);
+        int execute(const std::vector<std::string>& args);
+        void exit();
 
       private:
         std::string prompt {"nullsh>"};
+        int last_status_ {0};
 
-        command::CommandResult execute(command::Command& cmd);
+        command::CommandResult execute_command(command::Command& cmd);
     };
 } // namespace nullsh::shell

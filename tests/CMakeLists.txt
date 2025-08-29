@@ -3,9 +3,11 @@ set(NULLSH_TESTS "${PROJECT_NAME}_tests")
 
 # ---- Fetch GoogleTest ----
 include(FetchContent)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.15.0.zip
+FetchContent_Declare(googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG main
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
@@ -23,7 +25,9 @@ add_executable(${NULLSH_TESTS}
     test_shell.cpp
     test_parser.cpp
     test_command.cpp
-    test_result_capturer.cpp)
+    test_result_capturer.cpp
+    test_builtins.cpp
+    test_executor.cpp)
 
 set_target_properties(${NULLSH_TESTS} PROPERTIES
     OUTPUT_NAME ${PROJECT_NAME}-tests

@@ -37,7 +37,7 @@ int main(int argc, const char* argv[])
             return 2;
         }
 
-        return shell.dispatch(tokens.value());
+        return shell.execute(tokens.value());
     }
 
     if (getenv("NULLSH_IN_TERMINAL") == nullptr && cli->spawn_term)

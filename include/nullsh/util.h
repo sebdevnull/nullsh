@@ -8,6 +8,8 @@
 #pragma once
 
 #include <expected>
+#include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -19,4 +21,10 @@ namespace nullsh::util
     void trim(std::string& str);
     std::expected<std::vector<std::string>, std::string> tokenize(std::string_view line);
     bool command_exists(const std::string& cmd);
+
+    // Filesystem helpers
+    auto get_env_var(const std::string& name) -> std::optional<std::string>;
+    auto expand_user_path(const std::string& path) -> std::filesystem::path;
+    std::error_code resolve_directory(const std::filesystem::path& path,
+                                      std::filesystem::path& resolved_path);
 } // namespace nullsh::util
