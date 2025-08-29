@@ -104,6 +104,8 @@ namespace nullsh::shell
         {
             auto res = it->second(cmd, *this);
 
+            command::sanitize_result(res);
+
             for (auto op : cmd.ops)
             {
                 executor::apply_operator(op, res);

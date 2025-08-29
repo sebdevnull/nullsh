@@ -41,4 +41,6 @@ namespace nullsh::command
         std::string stdout_data;
         std::string stderr_data;
     };
+
+    void sanitize_result(CommandResult& res);
 } // namespace nullsh::command

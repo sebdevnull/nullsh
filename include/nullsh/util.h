@@ -16,10 +16,14 @@
 
 namespace nullsh::util
 {
+    // String helpers
     void ltrim(std::string& str);
     void rtrim(std::string& str);
     void trim(std::string& str);
-    std::expected<std::vector<std::string>, std::string> tokenize(std::string_view line);
+    void newline(std::string& str);
+    auto tokenize(std::string_view line) -> std::expected<std::vector<std::string>, std::string>;
+
+    // Command helpers
     bool command_exists(const std::string& cmd);
 
     // Filesystem helpers

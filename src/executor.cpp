@@ -84,7 +84,7 @@ namespace nullsh::executor
                 res.stderr_data.clear();
                 break;
             case command::Op::PrintRC:
-                std::cout << res.return_code;
+                std::cout << res.return_code << '\n';
                 break;
             case command::Op::PrintRCHuman:
                 std::cout << res.return_code;

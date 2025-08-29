@@ -102,7 +102,7 @@ TEST(ExecutorTest, ApplyOperator)
         testing::internal::CaptureStdout();
         apply_operator(Op::PrintRC, temp_res);
         std::string output = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(output, "0");
+        EXPECT_EQ(output, "0\n");
     }
 
     // Test PrintRCHuman

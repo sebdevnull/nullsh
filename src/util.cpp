@@ -62,12 +62,25 @@ namespace nullsh::util
     }
 
     /**
+     * @brief Ensures a string ends with a newline character
+     *
+     * @param str String to modify
+     */
+    void newline(std::string& str)
+    {
+        if (!str.empty() && str.back() != '\n')
+        {
+            str.push_back('\n');
+        }
+    }
+
+    /**
      * @brief Tokenizes a command line into individual arguments
      *
      * @param line Command line to tokenize
      * @return std::expected<std::vector<std::string>, std::string>
      */
-    std::expected<std::vector<std::string>, std::string> tokenize(std::string_view line)
+    auto tokenize(std::string_view line) -> std::expected<std::vector<std::string>, std::string>
     {
         std::vector<std::string> tokens;
         std::string cur;
