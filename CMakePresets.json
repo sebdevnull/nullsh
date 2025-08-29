@@ -7,30 +7,123 @@
     },
     "configurePresets": [
         {
-            "name": "debug",
-            "displayName": "Debug Configuration",
-            "binaryDir": "${sourceDir}/build/debug",
+            "name": "default",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CXX_STANDARD": "23",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "OFF",
+                "BUILD_TESTING": "ON",
+                "CMAKE_COLOR_DIAGNOSTICS": "ON",
+                "CMAKE_CXX_CLANG_TIDY": "clang-tidy-19;-p=${sourceDir}/build/${presetName}",
+                "CMAKE_INSTALL_PREFIX": "/usr/local"
+            }
+        },
+        {
+            "name": "debug",
+            "inherits": "default",
+            "description": "Debug Configuration",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS_DEBUG": "-g -O0 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -DDEBUG"
             }
         },
         {
             "name": "release",
-            "displayName": "Release Configuration",
-            "binaryDir": "${sourceDir}/build/release",
+            "inherits": "default",
+            "description": "Release Configuration",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG"
             }
         }
     ],
     "buildPresets": [
         {
+            "name": "default",
+            "configurePreset": "default",
+            "jobs": 8
+        },
+        {
             "name": "debug",
-            "configurePreset": "debug"
+            "configurePreset": "debug",
+            "inherits": "default"
         },
         {
             "name": "release",
-            "configurePreset": "release"
+            "configurePreset": "release",
+            "inherits": "default"
+        },
+        {
+            "name": "install-debug",
+            "configurePreset": "debug",
+            "description": "Install Debug build to /usr/local",
+            "targets": [
+                "install"
+            ]
+        },
+        {
+            "name": "install-release",
+            "configurePreset": "release",
+            "description": "Install Release build to /usr/local",
+            "targets": [
+                "install"
+            ]
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "release",
+            "configurePreset": "release",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "debug",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "debug"
+                },
+                {
+                    "type": "build",
+                    "name": "debug"
+                },
+                {
+                    "type": "test",
+                    "name": "debug"
+                }
+            ]
+        },
+        {
+            "name": "release",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "release"
+                },
+                {
+                    "type": "build",
+                    "name": "release"
+                },
+                {
+                    "type": "test",
+                    "name": "release"
+                }
+            ]
         }
     ]
 }
