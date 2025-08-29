@@ -129,6 +129,7 @@ configure_file(
 # ---- Tests ----
 include(CTest)
 if(BUILD_TESTING)
+    set(INSTALL_GTEST OFF CACHE BOOL "Disable gtest install" FORCE)
     add_subdirectory(tests)
 endif()
 
