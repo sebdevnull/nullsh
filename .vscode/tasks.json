@@ -1,0 +1,12 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "clang-tidy full project",
+            "type": "shell",
+            "command": "run-clang-tidy-19 -p build/debug -j 12",
+            "group": "build",
+            "problemMatcher": "$gcc"
+        }
+    ]
+}
