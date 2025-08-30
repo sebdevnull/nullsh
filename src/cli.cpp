@@ -19,10 +19,54 @@ namespace nullsh::cli
 {
     using namespace std::literals;
 
-    constexpr std::string_view HELP_MSG = "NullShell - embrace the void\n\n"
-                                          "Usage:\n"
-                                          "  nullsh            Start interactive shell\n"
-                                          "  nullsh -c \"cmd\"  Execute a single command\n";
+    constexpr std::string_view NULLSH_LOGO = R"(  _   _       _ _  _____ _          _ _ 
+ | \ | |     | | |/ ____| |        | | |
+ |  \| |_   _| | | (___ | |__   ___| | |
+ | . ` | | | | | |\___ \| '_ \ / _ \ | |
+ | |\  | |_| | | |____) | | | |  __/ | |
+ |_| \_|\__,_|_|_|_____/|_| |_|\___|_|_|
+)";
+
+    constexpr std::string_view HELP_BODY = R"(The intentional shell for a noisy world.
+Embrace the void. Execute with purpose.
+
+Usage:
+  nullsh [OPTIONS]
+
+Options:
+  -h, --help        Show this help message and exit
+  -v, --version     Show version information and exit
+      --build-info  Show build info (compiler, flags, etc.)
+  -c, --command     Execute a single command and exit
+  -s, --spawn       Launch nullsh in a new terminal window
+
+Operators:
+  !       Force output: print stdout and stderr
+  ?       Silent run: suppress all output, even on failure
+  $?      Return code: print numeric exit code of last command
+  $$?     Verbose return code: exit code with success/failure note
+
+Built-in Commands:
+  cd [dir]      Change current directory
+  pwd           Print current working directory
+  echo [args]   Print arguments (silent without '!')
+  exit [code]   Exit the shell
+
+Examples:
+  nullsh                  Start interactive session
+  nullsh -c 'ls /tmp !'   Execute command and exit
+  nullsh --spawn          Launch in a new terminal window
+
+Notes:
+- Commands succeed silently by default; errors are shown.
+- Operators modify behavior or display return codes.
+)";
+
+    constexpr std::string_view LICENSE_SHORT =
+        "License GPLv3: GNU General Public License version 3";
+    constexpr std::string_view LICENSE_DETAILS =
+        "For detailed license information, see LICENSE (GNU GPLv3) "
+        "<https://www.gnu.org/licenses/gpl-3.0.html>";
 
     namespace
     {
@@ -79,7 +123,12 @@ namespace nullsh::cli
             }
             else if (arg == "-h"sv || arg == "--help"sv)
             {
-                std::cout << HELP_MSG;
+                std::cout << NULLSH_LOGO << "\n"
+                          << "NullShell (nullsh) v" << VERSION_STR << "\n"
+                          << LICENSE_SHORT << "\n"
+                          << "\n"
+                          << HELP_BODY << "\n"
+                          << LICENSE_DETAILS << "\n";
                 std::exit(0);
             }
             else if (arg == "-s"sv || arg == "--spawn"sv)
@@ -94,6 +143,7 @@ namespace nullsh::cli
             {
                 std::cout << "NullShell version " << VERSION_STR << " (commit " << GIT_COMMIT
                           << ")\n"
+                          << LICENSE_SHORT << "\n"
                           << "Build type: " << BUILD_TYPE << "\n"
                           << "Compiler: " << COMPILER_ID << " " << COMPILER_VERSION << "\n";
                 std::exit(0);
@@ -102,6 +152,7 @@ namespace nullsh::cli
             {
                 std::cout << "NullShell version " << VERSION_STR << " (commit " << GIT_COMMIT
                           << ", branch " << GIT_BRANCH << ", tag " << GIT_TAG << ")\n"
+                          << LICENSE_SHORT << "\n"
                           << "Build type:     " << BUILD_TYPE << "\n"
                           << "Compiler:       " << COMPILER_ID << " " << COMPILER_VERSION << "\n"
                           << "System:         " << SYSTEM_NAME << " (" << SYSTEM_PROCESSOR << ")\n"
