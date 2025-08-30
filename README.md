@@ -1,3 +1,5 @@
+# NullShell (nullsh) v0.1.0
+
 ```plain
   _   _       _ _  _____ _          _ _ 
  | \ | |     | | |/ ____| |        | | |
@@ -6,7 +8,6 @@
  | |\  | |_| | | |____) | | | |  __/ | |
  |_| \_|\__,_|_|_|_____/|_| |_|\___|_|_|
 ```
-# NullShell (nullsh) v0.1.0
 
 > **The intentional shell for a noisy world.**  
 > *Embrace the void. Execute with purpose.*
@@ -17,6 +18,8 @@
 
 **nullsh** is a minimalist Linux shell designed for focus. It runs commands silently by default, printing output only on error or when you intentionally ask for it. Reduce cognitive load and execute with purpose.
 
+For a full list of changes in each release, check out the [CHANGELOG](CHANGELOG.md).
+
 ---
 
 ## ❓ Why Nullsh?
@@ -25,9 +28,9 @@ Nullsh exists to simplify terminal workflows:
 
 - Reduces clutter by showing output only when needed  
 - Forces intentionality with operator syntax (`!`, `?`, `$?`, `$$?`)  
-- Ideal for repetitive tasks, scripts, and focused development sessions 
+- Ideal for repetitive tasks, scripts, and focused development sessions
 
-These practical benefits are all guided by our core [philosophy](#philosophy) of intentionality.
+These practical benefits are all guided by our core [philosophy](#-philosophy) of intentionality.
 
 ---
 
@@ -43,13 +46,13 @@ These practical benefits are all guided by our core [philosophy](#philosophy) of
 
 ## ⚡ Features
 
--   **Minimalist Interface:** A clean prompt free of distractions.
--   **Silent by Default:** Commands that succeed do not print output.
--   **Ephemeral Sessions:** No history or state persists by default.
--   **Powerful Operators:** Control output and inspect state with `!`, `?`, `$?`, and `$$?`.
--   **Essential Built-ins:** Includes `cd`, `pwd`, `echo`, and `exit`.
--   **Runs Any Command:** Seamlessly executes all your existing external tools (`ls`, `grep`, `vim`, etc.).
--   **Flexible Execution:** Support for both interactive sessions and one-off commands.
+- **Minimalist Interface:** A clean prompt free of distractions.
+- **Silent by Default:** Commands that succeed do not print output.
+- **Ephemeral Sessions:** No history or state persists by default.
+- **Powerful Operators:** Control output and inspect state with `!`, `?`, `$?`, and `$$?`.
+- **Essential Built-ins:** Includes `cd`, `pwd`, `echo`, and `exit`.
+- **Runs Any Command:** Seamlessly executes all your existing external tools (`ls`, `grep`, `vim`, etc.).
+- **Flexible Execution:** Support for both interactive sessions and one-off commands.
 
 ---
 
@@ -95,16 +98,19 @@ NullShell provides several options for different use cases. The basic syntax is:
 ### Examples
 
 **Execute a command without entering the interactive shell:**
+
 ```bash
 nullsh -c 'ls /tmp !'
 ```
 
 **Launch in a new terminal emulator window:**
+
 ```bash
 nullsh --spawn
 ```
 
 **Start interactive session (default behavior):**
+
 ```bash
 nullsh
 ```
@@ -155,12 +161,14 @@ nullsh> exit
 ### Built-in Commands
 
 `nullsh` provides a few essential **built-in** commands:
--   **`cd [dir]`** - Change directory.
--   **`pwd`** - Print working directory.
--   **`echo [args]`** - Print arguments. (Silent without `!`).
--   **`exit [code]`** - Exit the shell.
+
+- **`cd [dir]`** - Change directory.
+- **`pwd`** - Print working directory.
+- **`echo [args]`** - Print arguments. (Silent without `!`).
+- **`exit [code]`** - Exit the shell.
 
 ### External Commands
+
 Any other command (e.g., `ls`, `cat`, `git`, `python`) is an **external command** and is executed just like in any other shell.
 
 ### Operator Reference
@@ -180,13 +188,14 @@ Operators in nullsh allow you to **modify command output or inspect return codes
 ## 🛤️ Roadmap
 
 Planned features for future releases of nullsh:
--   [ ] Configuration file (`~/.nullshrc`) for user preferences.
--   [ ] Enhanced prompt customization.
--   [ ] `nshctl` utility for runtime configuration.
--   [ ] Command history.
--   [ ] Advanced scripting support.
--   [ ] "Focus mode" for an even more minimal experience.
--   [ ] Anonymous session mode.
+
+- [ ] Configuration file (`~/.nullshrc`) for user preferences.
+- [ ] Enhanced prompt customization.
+- [ ] `nshctl` utility for runtime configuration.
+- [ ] Command history.
+- [ ] Advanced scripting support.
+- [ ] "Focus mode" for an even more minimal experience.
+- [ ] Anonymous session mode.
 
 ---
 
@@ -194,11 +203,11 @@ Planned features for future releases of nullsh:
 
 We welcome contributions that align with the `nullsh` philosophy of intentionality and minimalism.
 
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 Please discuss significant changes via [GitHub Issues](https://github.com/sebdevnull/nullsh/issues) first.
 
@@ -212,7 +221,7 @@ Encounter issues or unexpected behavior? Report via [GitHub Issues](https://gith
 
 ## 📜 License
 
-Distributed under the GNU GPLv3 License. See the `LICENSE` file for more information.
+Distributed under the GNU GPLv3 License. See the [LICENSE](LICENSE) file for more information.
 
 ---
 

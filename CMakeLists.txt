@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 
 project(nullsh
-    VERSION 0.1.0
+    VERSION 0.1.1
     DESCRIPTION "NullShell: A minimalist Linux shell where everything goes into the void"
     LANGUAGES CXX)
 
